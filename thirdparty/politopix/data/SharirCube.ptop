@@ -1,0 +1,9 @@
+# Dimension NumberOfHalfspaces NumberOfGenerators
+3 6 0
+# HALFSPACES : a0 + a1.x1 + ... + an.xn >= 0.
+25 -2 -25 10
+-2 25 2 10
+25 -2 25 10
+-2 25 -2 10
+0 0 -1 -1
+2 0 -1 1

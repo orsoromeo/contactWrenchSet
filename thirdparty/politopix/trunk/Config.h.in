@@ -1,0 +1,4 @@
+// The configured options and settings for politopix
+#define politopix_VERSION_MAJOR @politopix_VERSION_MAJOR@
+#define politopix_VERSION_MINOR @politopix_VERSION_MINOR@
+#define politopix_VERSION_PATCH @politopix_VERSION_PATCH@

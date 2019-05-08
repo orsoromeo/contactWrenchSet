@@ -1,0 +1,15 @@
+# Dimension NumberOfHalfspaces NumberOfVertices
+4 12 0
+# HALFSPACES : a0 + a1.x1 + ... + an.xn >= 0.
+0 0 0 0 -1
+0 -2 0 0 -1
+0 0 0 -1 -1
+0 0 -1 0 -1
+0 -2 0 -1 -1
+0 -2 -1 0 -1
+1 0 1 0 5
+1 0 0 1 5
+1 1 1 0 5
+1 1 0 1 5
+1 0 1 1 5
+1 1 1 1 5

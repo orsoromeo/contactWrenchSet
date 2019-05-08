@@ -1,0 +1,17 @@
+# Dimension NumberOfHalfspaces NumberOfGenerators
+3 4 4
+# HALFSPACES : a0 + a1.x1 + ... + an.xn >= 0.
+1 1 1 -1 
+1 -1 1 -1 
+0 0 -1 0 
+0 0 0 1 
+# GENERATORS : V = (v1, ..., vn)
+0 0 1 
+0 -1 0 
+-1 0 0 
+1 0 0 
+# GENERATOR CONNECTION : Ha, Hb, ...
+0 1 2 
+0 1 3 
+0 2 3 
+1 2 3 

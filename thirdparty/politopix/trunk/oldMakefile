@@ -1,0 +1,240 @@
+GCC_COMPILER = g++
+# Enable warnings
+GCC_COMPILER_FLAGS = 	-W \
+			-Wall \
+			-Wextra \
+			-Wswitch \
+			-Wformat \
+			-Wchar-subscripts \
+			-Wparentheses \
+			-Wmultichar \
+			-Wtrigraphs \
+			-Wpointer-arith \
+			-Wcast-align \
+			-Wreturn-type \
+			-Wshadow \
+			-Wundef \
+			-Woverloaded-virtual \
+			-Wno-unused-function
+			#-Weffc++ \
+			#-std=c++0x -DBOOST_UBLAS_USE_ITERATING
+
+INC =  -I /home/delos/boost_1_42_0/ -I /usr/include/boost/
+#INC =  -I /home/delosvin/CPP/boost_1_47_0/
+#LIB = -L/usr/local/cuda/lib -L/usr/lib/nvidia -lcuda -lcudart
+
+# Debug/release configuration
+ifdef dbg
+	ifeq ($(dbg),1)
+		#GCC_COMPILER_FLAGS	+= -g
+		GCC_COMPILER_FLAGS	+= -g
+		BINSUBDIR		:= debug
+		LIBSUFFIX		:= D
+	endif
+	ifeq ($(dbg),2)
+		#GCC_COMPILER_FLAGS	+= -g
+		GCC_COMPILER_FLAGS	+= -g -DDEBUG
+		BINSUBDIR		:= debug
+		LIBSUFFIX		:= D
+	endif
+else
+	GCC_COMPILER_FLAGS	+= -O3 -fno-strict-aliasing -DNDEBUG -DBOOST_UBLAS_NDEBUG
+	BINSUBDIR		:= release
+	LIBSUFFIX		:=
+endif
+
+# Name of the executable.
+TARGET = politopix
+
+# Test paths
+D4 := ../data/Turbine1/discretisation_4
+D5 := ../data/Turbine1/discretisation_5
+D6 := ../data/Turbine1/discretisation_6
+D8_d5 := ../data/Turbine1/discretisation_8_d5
+D8_d6 := ../data/Turbine1/discretisation_8_d6
+
+# Build the list of object files for CPP files.
+SRC_DIRS := .
+SRC_FILES := $(foreach DIR, $(SRC_DIRS), $(wildcard $(DIR)/*.cpp))
+OBJS := $(patsubst %.cpp, %.o, $(SRC_FILES))
+
+# Nothing special for all
+all: $(TARGET)
+	echo All done
+
+# Link
+$(TARGET): $(OBJS)
+	$(GCC_COMPILER) $(GCC_COMPILER_FLAGS) -o $@ $^
+
+# Compile the CPP files.
+%.o: %.cpp
+	$(GCC_COMPILER) $(GCC_COMPILER_FLAGS) -o $@ $(INC) -c $<
+
+# Clean all object files and executable.
+clean:
+	rm -f *.o $(TARGET) *~
+	echo Clean done
+
+# Copy an exe in the data dir
+test: $(TARGET)
+	cp $(TARGET) ../data/
+	cp $(TARGET) $(D4)
+	cp $(TARGET) $(D5)
+	cp $(TARGET) $(D6)
+	cp $(TARGET) $(D8_d5)
+	cp $(TARGET) $(D8_d6)
+	./test_all.bash
+
+doc:
+	cd ../doc/doxygen/
+	rm -rf html latex doxygen.zip
+	doxygen Doxyfile
+	zip -r doxygen html latex
+
+#       -Wall
+#           This enables all the warnings about constructions that some users consider questionable, and that are easy to avoid (or
+#           modify to prevent the warning), even in conjunction with macros.  This also enables some language-specific warnings
+#           described in C++ Dialect Options and Objective-C and Objective-C++ Dialect Options.
+#
+#           -Wall turns on the following warning flags:
+#
+#           -Waddress -Warray-bounds (only with -O2) -Wc++0x-compat -Wchar-subscripts -Wimplicit-int -Wimplicit-function-declaration
+#           -Wcomment -Wformat -Wmain (only for C/ObjC and unless -ffreestanding) -Wmissing-braces -Wnonnull -Wparentheses
+#           -Wpointer-sign -Wreorder -Wreturn-type -Wsequence-point -Wsign-compare (only in C++) -Wstrict-aliasing -Wstrict-overflow=1
+#           -Wswitch -Wtrigraphs -Wuninitialized (only with -O1 and above) -Wunknown-pragmas -Wunused-function -Wunused-label
+#           -Wunused-value -Wunused-variable
+#
+#           Note that some warning flags are not implied by -Wall.  Some of them warn about constructions that users generally do not
+#           consider questionable, but which occasionally you might wish to check for; others warn about constructions that are
+#           necessary or hard to avoid in some cases, and there is no simple way to modify the code to suppress the warning. Some of
+#           them are enabled by -Wextra but many of them must be enabled individually.
+#
+#       -Wextra
+#           This enables some extra warning flags that are not enabled by -Wall. (This option used to be called -W.  The older name is
+#           still supported, but the newer name is more descriptive.)
+#
+#           -Wclobbered -Wempty-body -Wignored-qualifiers -Wmissing-field-initializers -Wmissing-parameter-type (C only)
+#           -Wold-style-declaration (C only) -Woverride-init -Wsign-compare -Wtype-limits -Wuninitialized (only with -O1 and above)
+#           -Wunused-parameter (only with -Wunused or -Wall)
+#
+#           The option -Wextra also prints warning messages for the following cases:
+#
+#           ·   A pointer is compared against integer zero with <, <=, >, or >=.
+#
+#           ·   (C++ only) An enumerator and a non-enumerator both appear in a conditional expression.
+#
+#           ·   (C++ only) A non-static reference or non-static const member appears in a class without constructors.
+#
+#           ·   (C++ only) Ambiguous virtual bases.
+#
+#           ·   (C++ only) Subscripting an array which has been declared register.
+#
+#           ·   (C++ only) Taking the address of a variable which has been declared register.
+#
+#           ·   (C++ only) A base class is not initialized in a derived class? copy constructor.
+#
+#
+#
+#       -g  Produce debugging information in the operating system?s native format (stabs, COFF, XCOFF, or DWARF 2).  GDB can work with
+#           this debugging information.
+#
+#           On most systems that use stabs format, -g enables use of extra debugging information that only GDB can use; this extra
+#           information makes debugging work better in GDB but will probably make other debuggers crash or refuse to read the program.
+#           If you want to control for certain whether to generate the extra information, use -gstabs+, -gstabs, -gxcoff+, -gxcoff, or
+#           -gvms (see below).
+#
+#           GCC allows you to use -g with -O.  The shortcuts taken by optimized code may occasionally produce surprising results: some
+#           variables you declared may not exist at all; flow of control may briefly move where you did not expect it; some statements
+#           may not be executed because they compute constant results or their values were already at hand; some statements may execute
+#           in different places because they were moved out of loops.
+#
+#           Nevertheless it proves possible to debug optimized output.  This makes it reasonable to use the optimizer for programs that
+#           might have bugs.
+#
+#
+#       Options That Control Optimization
+#
+#       These options control various sorts of optimizations.
+#
+#       Without any optimization option, the compiler?s goal is to reduce the cost of compilation and to make debugging produce the
+#       expected results.  Statements are independent: if you stop the program with a breakpoint between statements, you can then assign
+#       a new value to any variable or change the program counter to any other statement in the function and get exactly the results you
+#       would expect from the source code.
+#
+#       Turning on optimization flags makes the compiler attempt to improve the performance and/or code size at the expense of
+#       compilation time and possibly the ability to debug the program.
+#
+#       The compiler performs optimization based on the knowledge it has of the program.  Optimization levels -O and above, in
+#       particular, enable unit-at-a-time mode, which allows the compiler to consider information gained from later functions in the
+#       file when compiling a function.  Compiling multiple files at once to a single output file in unit-at-a-time mode allows the
+#       compiler to use information gained from all of the files when compiling each of them.
+#
+#       Not all optimizations are controlled directly by a flag.  Only optimizations that have a flag are listed.
+#
+#       -O
+#       -O1 Optimize.  Optimizing compilation takes somewhat more time, and a lot more memory for a large function.
+#
+#           With -O, the compiler tries to reduce code size and execution time, without performing any optimizations that take a great
+#           deal of compilation time.
+#
+#           -O turns on the following optimization flags:
+#
+#           -fauto-inc-dec -fcprop-registers -fdce -fdefer-pop -fdelayed-branch -fdse -fguess-branch-probability -fif-conversion2
+#           -fif-conversion -finline-small-functions -fipa-pure-const -fipa-reference -fmerge-constants -fsplit-wide-types -ftree-ccp
+#           -ftree-ch -ftree-copyrename -ftree-dce -ftree-dominator-opts -ftree-dse -ftree-fre -ftree-sra -ftree-ter -funit-at-a-time
+#
+#           -O also turns on -fomit-frame-pointer on machines where doing so does not interfere with debugging.
+#
+#       -O2 Optimize even more.  GCC performs nearly all supported optimizations that do not involve a space-speed tradeoff.  The
+#           compiler does not perform loop unrolling or function inlining when you specify -O2.  As compared to -O, this option
+#           increases both compilation time and the performance of the generated code.
+#
+#           -O2 turns on all optimization flags specified by -O.  It also turns on the following optimization flags: -fthread-jumps
+#           -falign-functions  -falign-jumps -falign-loops  -falign-labels -fcaller-saves -fcrossjumping -fcse-follow-jumps
+#           -fcse-skip-blocks -fdelete-null-pointer-checks -fexpensive-optimizations -fgcse  -fgcse-lm -foptimize-sibling-calls
+#           -fpeephole2 -fregmove -freorder-blocks  -freorder-functions -frerun-cse-after-loop -fsched-interblock  -fsched-spec
+#           -fschedule-insns  -fschedule-insns2 -fstrict-aliasing -fstrict-overflow -ftree-pre -ftree-vrp
+#
+#           Please note the warning under -fgcse about invoking -O2 on programs that use computed gotos.
+#
+#       -O3 Optimize yet more.  -O3 turns on all optimizations specified by -O2 and also turns on the -finline-functions,
+#           -funswitch-loops, -fpredictive-commoning, -fgcse-after-reload and -ftree-vectorize options.
+#GCC_COMPILER_FLAGS = 	-W \
+#-Wall \
+# Warn when a declaration does not specify a type & whenever a
+# function is used before being declared.
+#-Wimplicit \
+# Warn whenever a switch statement has an index of enumerated
+# type and lacks a case for one or more of the named codes of
+# that enumeration. Case labels outside the enumeration range 
+# also provoke warnings when this option is used.
+#-Wswitch \
+# Check calls to printf and scanf, etc., to make sure that the
+# arguments supplied have types appropriate to the format
+# string specified, and that the conversions specified in the
+# format string make sense.
+#-Wformat \
+# Warn if an array subscript has type char. This is a common 
+# cause of error, as programmers often forget that this type
+# is signed on some machines.
+#-Wchar-subscripts \
+# Warn if parentheses are omitted in certain contexts. Also
+#warn if a comparison like `x<=y<=z' appears. Also warn about 
+#constructions where there may be confusion to which if
+# statement an else branch belongs.
+#-Wparentheses \
+#-Wmultichar \
+# Warn if any trigraphs are encountered that might change the
+# meaning of the program.
+#-Wtrigraphs \
+# Warn about anything that depends on the ?size of? a
+# function type or of void.
+#-Wpointer-arith \
+# Warn whenever a pointer is cast such that the required
+# alignment of the target is increased.
+#-Wcast-align \
+# Warn whenever a function is defined with a return-type that
+# defaults to int. Also warn about any return statement with
+# no return-value in a function whose return-type is not void.
+#-Wreturn-type \
+#-Wno-unused-function
